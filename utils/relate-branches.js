@@ -10,6 +10,6 @@ IIFE(async () => {
 
   const branches = await g.branchLocal();
 
-  const l = await g.log();
+  const l = await g.revparse();
   console.log(l);
 });
