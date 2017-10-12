@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/guy-kdm/git-spot#readme",
   "dependencies": {
+    "minimist": "^1.2.0",
+    "ramda": "^0.25.0",
     "simple-git": "^1.79.0"
   }
 }
