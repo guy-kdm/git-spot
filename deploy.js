@@ -1,6 +1,6 @@
 /**
  * branch name convention: [prefix]/desc. prefix can be a WIP_PREFIX or a backup_prefix.  
- * WIP prefixes: ['SPOT-[ticket_num]', 'HOTFIX', 'WIP']
+ * WIP prefixes: ['spot-[ticket_num]', 'hotfix', 'wip']
  * backup prefixes: ['released-[DepT]', 'merged', 'wip_backup'] (backup prefixes always end with a timestamp)
  * 
  * deployed-branch (DepB) defaults to current branch

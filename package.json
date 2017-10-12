@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/guy-kdm/git-spot/issues"
   },
-  "homepage": "https://github.com/guy-kdm/git-spot#readme"
+  "homepage": "https://github.com/guy-kdm/git-spot#readme",
+  "dependencies": {
+    "simple-git": "^1.79.0"
+  }
 }
