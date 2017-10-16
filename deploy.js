@@ -1,7 +1,8 @@
 /**
  * branch name convention: [prefix]/desc. prefix can be a WIP_PREFIX or a backup_prefix.  
- * WIP prefixes: ['spot-[ticket_num]', 'hotfix', 'wip']
- * backup prefixes: ['released-[DepT]', 'merged', 'wip_backup'] (backup prefixes always end with a timestamp)
+ * wip prefixes: ['ticket-[ticket_num]', 'hotfix', 'wip']
+ * pr prefixes:  [*-pr-[pr_num]]
+ * backup prefixes: ['merged', released-[DepT]', 'backup-[wip-prefix]'] (backup prefixes always end with a timestamp)
  * 
  * deployed-branch (DepB) defaults to current branch
  * deployment-target (DepT) defaults to master if on staging, otherwise to 'staging'
@@ -20,3 +21,4 @@
  *  4. force merge branch to DepT (merge msg is backup branch name)
  *  5. announce to slack?
  */
+// git quickie stash, open a wip branch+pop, merge to develop

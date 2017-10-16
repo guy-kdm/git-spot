@@ -10,6 +10,10 @@
     "type": "git",
     "url": "git+https://github.com/guy-kdm/git-spot.git"
   },
+  "prettier": {
+    "semi": false,
+    "trailingComma": "es5"
+  },
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -17,8 +21,10 @@
   },
   "homepage": "https://github.com/guy-kdm/git-spot#readme",
   "dependencies": {
+    "github": "^11.0.0",
+    "inquirer": "^3.3.0",
     "minimist": "^1.2.0",
-    "ramda": "^0.25.0",
+    "parse-github-repo-url": "^1.4.1",
     "simple-git": "^1.79.0"
   }
 }
