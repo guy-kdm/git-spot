@@ -16,13 +16,19 @@ module.exports = async function getBranches() {
   await Promise.all(
     // match each local branch with its origin tracking branch
     localBranches.map(async branch => {
-      const remote = all.find(b => b.name === 'remotes/origin/' + branch.name)
-      branch.origin = remote
-      branch.syncStatus = await relateBranches(branch.name, remote.name)
+      const originBranch = all.find(
+        b => b.name === 'remotes/origin/' + branch.name
+      )
+
+      if (originBranch) {
+        branch.origin = originBranch
+        branch.syncStatus = await relateBranches(branch.name, originBranch.name)
+      }
     })
   )
 
   // add prefix and description from the branch naming convention
+  // add branch type from branches config
   localBranches.forEach(async branch => {
     const [prefix, description] = branch.name.split('/')
 
@@ -34,5 +40,14 @@ module.exports = async function getBranches() {
     }
   })
 
+  // add branch type from config
+  branch.sharedBranchConfig = findBranchConfig(branch.name)
+
   return localBranches
+}
+
+const findBranchConfig = branchName => {
+  return Object.keys(g.sharedBranchesConfig).find(key =>
+    g.sharedBranchesConfig[key].includes(branchName)
+  )
 }
