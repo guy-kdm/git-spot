@@ -1,22 +1,34 @@
 const g = require('./git-client')
 const relateBranches = require('./relate-branches')
-// returns branches with relations (diverged / identical / ahead / behind) + relevant-commits
-// returns branches with origin, relation
-// according to a selector (prefix, time, branch, ext...)
+const exportScriptOrModule = require('./export-script-or-module')
+const R = require('ramda')
 
-const branchSummaryToBranchArray = summary => {
-  return Object.values(summary.branches)
+exportScriptOrModule(getBranches, module)
+
+/**
+ * Returns a formated branches object with all of 
+ * git-spot's convention props.
+ */
+async function getBranches() {
+  const localBranches = await getLocalBranches()
+
+  return {
+    all: localBranches,
+    current: localBranches.find(b => b.current),
+    ofType(type) {
+      return this.all.filter(b => b.type === type)
+    },
+  }
 }
 
-module.exports = async function getBranches() {
-  // get all branches
+async function getLocalBranches() {
   const localBranches = branchSummaryToBranchArray(await g.branchLocal())
-  const all = branchSummaryToBranchArray(await g.branch())
+  const allBranches = branchSummaryToBranchArray(await g.branch())
 
   await Promise.all(
     // match each local branch with its origin tracking branch
     localBranches.map(async branch => {
-      const originBranch = all.find(
+      const originBranch = allBranches.find(
         b => b.name === 'remotes/origin/' + branch.name
       )
 
@@ -36,15 +48,17 @@ module.exports = async function getBranches() {
     if (!description) {
       // e.g. develop, master, non standard name
       branch.description = prefix
+      branch.type = findBranchConfig(branch.name) || null
     } else {
-      Object.assign(branch, { prefix, description })
+      Object.assign(branch, { type: prefix, description })
     }
-
-    // add branch type from config
-    branch.sharedBranchConfig = findBranchConfig(branch.name)
   })
 
   return localBranches
+}
+
+function branchSummaryToBranchArray(summary) {
+  return Object.values(summary.branches)
 }
 
 const findBranchConfig = branchName => {

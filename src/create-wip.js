@@ -5,15 +5,13 @@ const relateBranches = require('./shared/relate-branches')
 const createBranch = require('./shared/create-branch')
 const argv = require('minimist')(process.argv.slice(2))
 
-const description = argv[0]
-
 const IIFE = fn => fn()
-IIFE(() => createWIP(argv[0]))
+IIFE(() => createWIP(argv))
 
 // todo? if currently wip ask if finish curr or start new
 // todo: if on develop and develop dirty - autostash
 // todo: handle dirty WD, ask what to do
-async function createWIP(description) {
+async function createWIP({ description }) {
   // updating remote tracking branches
   await g.fetch(['--all', '--prune'])
 
@@ -33,6 +31,6 @@ async function createWIP(description) {
     // todo: ask weather to run the commands or see the commits
   }
 
-  console.log(developStatus)
+  // todo: if existing wip by name ask if to checkout
   createBranch({ from: 'develop', prefix: 'wip', description })
 }
