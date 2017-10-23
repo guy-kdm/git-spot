@@ -43,14 +43,14 @@ async function getLocalBranches() {
   // add branch type from branches config
   // todo: add timestamp if any
   localBranches.forEach(async branch => {
-    const [prefix, description] = branch.name.split('/')
+    const [prefix, desc] = branch.name.split('/')
 
-    if (!description) {
+    if (!desc) {
       // e.g. develop, master, non standard name
-      branch.description = prefix
+      branch.desc = prefix
       branch.type = findBranchConfig(branch.name) || null
     } else {
-      Object.assign(branch, { type: prefix, description })
+      Object.assign(branch, { type: prefix, desc })
     }
   })
 
