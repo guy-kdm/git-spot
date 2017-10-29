@@ -35,7 +35,7 @@ async function createWIP() {
 
   const developStatus = await relateBranches('develop', 'origin/develop')
 
-  //todo: might be ahead...
+  //todo: add tests, change text
   if (developStatus.relation === 'diverged') {
     console.error(
       'Cannot create a WIP branch because the develop branch diverged from origin.\n' +

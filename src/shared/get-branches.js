@@ -15,7 +15,7 @@ async function getBranches() {
   return {
     all: localBranches,
     current: localBranches.find(b => b.current),
-    ofType(type) {
+    byType(type) {
       return this.all.filter(b => b.type === type)
     },
   }
@@ -32,9 +32,11 @@ async function getLocalBranches() {
         b => b.name === 'remotes/origin/' + branch.name
       )
 
+      branch.origin = originBranch
       if (originBranch) {
-        branch.origin = originBranch
         branch.syncStatus = await relateBranches(branch.name, originBranch.name)
+      } else {
+        branch.syncStatus = { relation: 'no remote' }
       }
     })
   )
@@ -45,8 +47,9 @@ async function getLocalBranches() {
   localBranches.forEach(async branch => {
     const [prefix, desc] = branch.name.split('/')
 
+    // if non standard name format (e.g. develop, master)
+    // todo: change to if list.includes otherwise treat as wip
     if (!desc) {
-      // e.g. develop, master, non standard name
       branch.desc = prefix
       branch.type = findBranchConfig(branch.name) || null
     } else {

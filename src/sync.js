@@ -1,7 +1,7 @@
-const g = require('./utils/git-client')
-const getBranches = require('./utils/get-branches')
+const g = require('./shared/git-client')
+const getBranches = require('./shared/get-branches')
 
-const forEachPromise = async (fn, arr) => await Promise.all(arr.map(fn))
+const forEachPromise = ({ fn, arr }) => Promise.all(arr.map(fn))
 
 // validate
 // WIP branches that need rebasing
@@ -14,37 +14,32 @@ const forEachPromise = async (fn, arr) => await Promise.all(arr.map(fn))
 const IIFE = fn => fn()
 
 IIFE(async () => {
-  const branches = await getBranches()
-  console.log({ syncSts: branches.map(b => b.syncStatus) })
-  // each wip ahead branch - push
-  // const aheadWipBranches = branches.filter(
-  //   b => b.syncStatus.relation === 'ahead' && b.prefix === 'wip'
-  // )
+  await g.fetch(['--all', '--prune'])
 
-  // todo: deal with no remote origin...
+  const branches = (await getBranches()).all
 
   // 1. set upstream branches with no origin
-  const noOrigin = branches.filter(b => !b.origin)
+  const noOrigin = branches.filter(b => b.syncStatus.relation === 'no remote')
   if (noOrigin.length) {
-    console.log(
-      //todo: add branches list to log
-      `Setting local only branches in origin, so you'll have them backed up.`
-    )
+    console.log(`Adding to remote: ${noOrigin.map(b => b.name).join(', ')}`)
 
-    //todo: delete if works- noOrigin.forEach(b => g.push(['--set-upstream', 'origin', b.name]))
-    await forEachPromise(noOrigin, b =>
-      g.push(['--set-upstream', 'origin', b.name])
-    )
+    await forEachPromise({
+      arr: noOrigin,
+      fn: b => g.push(['--set-upstream', 'origin', b.name]),
+    })
   }
 
   // 2. updating behind branches
+  // todo! if deployment branch behind - don't push!
   const behindBranches = branches.filter(
     b => b.syncStatus.relation === 'behind'
   )
   if (behindBranches.length) {
-    await forEachPromise(behindBranches, b =>
-      g.pull(b.name, ['--rebase', '--ff-only'])
-    )
+    console.log(`Pulling: ${behindBranches.map(b => b.name).join(', ')}`)
+    await forEachPromise({
+      arr: behindBranches,
+      fn: b => g.pull(b.name, ['--rebase', '--ff-only']),
+    })
   }
 
   // 3. pushing ahead wip branches
@@ -52,13 +47,23 @@ IIFE(async () => {
     b => b.syncStatus.relation === 'ahead' && !b.sharedBranchConfig
   )
   if (aheadWipBranches.length) {
-    console.log('Pushing ahead branches') // todo...
-    aheadWipBranches.forEach(b => g.push('origin', b.name))
+    console.log(`Pushing: ${aheadWipBranches.map(b => b.name).join(', ')}`) // todo...
+    await forEachPromise({
+      arr: aheadWipBranches,
+      fn: b => g.push('origin', b.name),
+    })
   }
 
   // 4. handling diverging branches
+
   //todo: if any shared branch is diverged - warn
   // console.log({ behindBranches, aheadWipBranches })
+
+  const alreadySynced = branches.filter(
+    b => b.syncStatus.relation === 'identical'
+  )
+  // todo: remove?
+  console.log(`Up to date: ${alreadySynced.map(b => b.name).join(', ')}`)
 })
 
 // if (branch.configType && branch.syncStatus.relation === 'behind') {

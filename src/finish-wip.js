@@ -9,7 +9,8 @@ const getBranches = require('./shared/get-branches')
 // todo: handle uncommited changes uncommited
 // todo: if staged changes prompt to commit with finish... msg
 // todo: add option for single commit branch
-//todo:   await g.fetch(['--all', '--prune'])
+// todo: await g.fetch(['--all', '--prune'])
+// todo: switch to yargs
 
 const IIFE = fn => fn()
 IIFE(() => finishWIP(argv))
