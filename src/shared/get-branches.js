@@ -51,7 +51,12 @@ async function getLocalBranches() {
     // todo: change to if list.includes otherwise treat as wip
     if (!desc) {
       branch.desc = prefix
-      branch.type = findBranchConfig(branch.name) || null
+
+      const config = g.sharedBranches[branch.desc]
+      if (config) {
+        branch.type = config.type
+        branch.sharedBranchConfig = config
+      }
     } else {
       Object.assign(branch, { type: prefix, desc })
     }
@@ -60,12 +65,7 @@ async function getLocalBranches() {
   return localBranches
 }
 
+// todo: remove...
 function branchSummaryToBranchArray(summary) {
   return Object.values(summary.branches)
-}
-
-const findBranchConfig = branchName => {
-  return Object.keys(g.sharedBranchesConfig).find(key =>
-    g.sharedBranchesConfig[key].includes(branchName)
-  )
 }

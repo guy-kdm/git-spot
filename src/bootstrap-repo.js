@@ -18,7 +18,7 @@ module.exports = async function bootstrapRepo({ name, parentDir }) {
   // if (!isForTesting) {
   //   //todo!
   //   console.error('NOT IMPL')
-  //   process.exit(1)
+  //   process.exit(1)\
   // }
 
   await fs.mkdir(parentDir + '/local')

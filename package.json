@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "git-sync": "./src/sync.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guy-kdm/git-spot.git"
@@ -21,6 +24,7 @@
   },
   "homepage": "https://github.com/guy-kdm/git-spot#readme",
   "dependencies": {
+    "flat": "true4.0.0",
     "github": "^11.0.0",
     "inquirer": "^3.3.0",
     "minimist": "^1.2.0",
