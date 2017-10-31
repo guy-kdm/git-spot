@@ -86,6 +86,11 @@ IIFE(async () => {
 
   // 4. handling diverging branches
 
+  // todo! add relation to top lavel, curry whereEq to create filterBranches
+  const sharedDiverged = filterBranches({
+    isShared: true,
+    'syncStatus.relation': 'diverged',
+  })
   //todo: if any shared branch is diverged - warn
   // console.log({ behindBranches, aheadWipBranches })
 
@@ -95,7 +100,10 @@ IIFE(async () => {
 
   logIfAny(alreadySynced, 'Up to date:')
 
-  // todo: if shared branch is behind "deployTo" - warn
+  // todo! - if diverged from 'deployed to' - add to get branches!
+  // todo! if shared branch is behind "deployTo" - warn 'pending deploy'
+
+  //todo! prune out merged wip branches!
 })
 
 // if (branch.configType && branch.syncStatus.relation === 'behind') {
