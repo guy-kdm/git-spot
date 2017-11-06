@@ -34,6 +34,8 @@
     "simple-git": "^1.79.0"
   },
   "devDependencies": {
+    "eslint": "true4.10.0",
+    "eslint-plugin-node": "true5.2.1",
     "tmp-promise": "^1.0.3"
   }
 }

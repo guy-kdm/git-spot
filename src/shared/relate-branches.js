@@ -19,19 +19,19 @@ module.exports = async function relateBranches(fromBranch, toBranch) {
   const fromAheadBy = groupedByBranch[fromBranch].length
   const toAheadBy = groupedByBranch[toBranch].length
 
-  let relation
+  let status
   if (fromAheadBy > 0 && toAheadBy > 0) {
-    relation = 'diverged'
+    status = 'diverged'
   } else if (fromAheadBy > 0) {
-    relation = 'ahead'
+    status = 'ahead'
   } else if (toAheadBy > 0) {
-    relation = 'behind'
+    status = 'behind'
   } else {
-    relation = 'identical'
+    status = 'identical'
   }
 
   const result = {
-    relation,
+    status,
     from: fromBranch,
     to: toBranch,
     fromAheadBy,

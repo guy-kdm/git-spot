@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const g = require('./shared/git-client')
-const getBranches = require('./shared/get-branches')
+const { getBranches } = require('./shared/repository')
 const _ = require('ramda')
 
 const forEachPromise = ({ fn, arr }) => Promise.all(arr.map(fn))
@@ -16,20 +16,6 @@ const logIfAny = (branches, msg) =>
 //        diverging branches: [...]
 //        no remote branches: [...]
 //recommend fix diverged branches
-
-async function ensureSharedBranchesTracked() {
-  const sharedBrancheNames = Object.keys(g.sharedBranches)
-  const currBranchName = await g.revparse(['--abbrev-ref', 'HEAD'])
-
-  // Ensuring all shared branches have a local tracking branch
-  // by checking them out
-  await forEachPromise({
-    arr: sharedBrancheNames,
-    fn: b => g.checkoutBranch(b),
-  })
-
-  await g.checkoutBranch(currBranchName)
-}
 
 const IIFE = fn => fn()
 
