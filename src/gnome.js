@@ -16,13 +16,13 @@ const logIfAny = (branches, msg) =>
 //  pushed (remoteless or ahead wip / trunks): [...]
 //  rebased: [branches behind deploy target where ff merge possible]
 //  deleted (merged wips): [...]
-//  up to date branches: [...] <- no need prob
 //warnings:
 //  behind (branches ahead of deploy target)
 //  ahead (shared deployment branches ahead of origin): [...]
 //  diverged (branches diverged from deploy target): [...] (bold for shared branches)
 //  stale (unmerged wip branches not touched for X days): [...] -- add command to choose which to delete
-//  regular status output?
+//  up to date branches: [...] <- no need prob
+//  regular status output? (chance to get to know it...)
 //todo: verbose (with branch names, otherwise: just no of branches affected by each action)
 //todo: add date since last edit to branches and sort accordingly
 //todo: to avoid second script run, use head commit from the most up to date branch version (origin / local) to check if merged
@@ -46,7 +46,6 @@ IIFE(async () => {
   logIfAny(noOrigin, 'Added to origin:')
 
   // 2. pushing ahead non deploy branches
-  // {'syncStatus.relation': 'ahead', type !== 'deploy'}
   const aheadDevBranches = branches.filter(
     b => b.syncStatus.relation === 'ahead' && b.type !== 'deploy'
   )
@@ -60,7 +59,6 @@ IIFE(async () => {
   logIfAny(aheadDevBranches, 'Pushed:')
 
   // 3. pulling behind branches
-  // {'syncStatus.relation': 'behind', isShared === false}
   const behindBranches = branches.filter(
     b => b.syncStatus.relation === 'behind' && !b.isShared
   )

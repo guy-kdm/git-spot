@@ -4,12 +4,16 @@ const { execSync } = require('child_process')
 const _ = require('ramda')
 
 // updating repo from remote once per script
+// todo: move to scriptRunner module
 _.once(() => execSync('git fetch --all --prune'))()
 
 // repo status is branches and commits without a branch
 //  let currBranchName = await g.revparse(['--abbrev-ref', 'HEAD'])
 
 //Object.values((await g.branchLocal()).branches)
+
+//todo: make upstream remote configuarable (default to origin)
+//todo! make wip prefix configurable
 
 const _branches = async () => {
   return _isCacheValid
@@ -39,10 +43,16 @@ const createBranch = async ({ from, prefix, title, failIfExists = true }) => {
   }
 }
 
-// taken from
-const branchRegex = /^(\*?\s+)(\S+)\s+([a-z0-9]+)\s(.*)$/
+/**
+ * relationToUpstream
+ * relationToDeploymentTarget
+ * syncStatus
+ * deploymentStatus
+ * isShared
+ * type (wip / deployment / trunk)
+ */
 
-//todo: add headCommit prop for the most up to date commit (local / origin)
+//todo: add headCommit prop for the most up to date commit (local / origin) (use for is merged checking)
 const getBranches = async () => {
   const branches = Object.values((await g.branch()).branches)
 
