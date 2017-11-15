@@ -8,23 +8,30 @@ const logIfAny = (branches, msg) =>
   branches.length &&
   console.log(msg + ' ' + branches.map(b => b.name).join(', '))
 
-// validate
-// WIP branches that need rebasing
-// fetch all remotes like git up
-//output: updated branches: [...]
-//        up to date branches: [...]
-//        diverging branches: [...]
-//        no remote branches: [...]
-//recommend fix diverged branches
+//init action: fetch -a --prune
+//output:
+//actions:
+//  created (branch for each shared branch) (before get branches)
+//  pulled (all behind): [...]
+//  pushed (remoteless or ahead wip / trunks): [...]
+//  rebased: [branches behind deploy target where ff merge possible]
+//  deleted (merged wips): [...]
+//  up to date branches: [...] <- no need prob
+//warnings:
+//  behind (branches ahead of deploy target)
+//  ahead (shared deployment branches ahead of origin): [...]
+//  diverged (branches diverged from deploy target): [...] (bold for shared branches)
+//  stale (unmerged wip branches not touched for X days): [...] -- add command to choose which to delete
+//  regular status output?
+//todo: verbose (with branch names, otherwise: just no of branches affected by each action)
+//todo: add date since last edit to branches and sort accordingly
+//todo: to avoid second script run, use head commit from the most up to date branch version (origin / local) to check if merged
 
 const IIFE = fn => fn()
 
+// warn for detached commits in reflog
+
 IIFE(async () => {
-  // todo: move to before each script
-  await g.fetch(['--all', '--prune'])
-
-  await ensureSharedBranchesTracked()
-
   const branches = await getBranches()
 
   // 1. set upstream branches with no origin
@@ -52,10 +59,6 @@ IIFE(async () => {
 
   logIfAny(aheadDevBranches, 'Pushed:')
 
-  //todo: add env to branch config?
-
-  // todo: ask weather to push ahead shared branches
-
   // 3. pulling behind branches
   // {'syncStatus.relation': 'behind', isShared === false}
   const behindBranches = branches.filter(
@@ -77,25 +80,10 @@ IIFE(async () => {
     isShared: true,
     'syncStatus.relation': 'diverged',
   })
-  //todo: if any shared branch is diverged - warn
-  // console.log({ behindBranches, aheadWipBranches })
 
   const alreadySynced = branches.filter(
     b => b.syncStatus.relation === 'identical'
   )
 
   logIfAny(alreadySynced, 'Up to date:')
-
-  // todo! - if diverged from 'deployed to' - add to get branches!
-  // todo! if shared branch is behind "deployTo" - warn 'pending deploy'
-
-  //todo! prune out merged wip branches!
 })
-
-// if (branch.configType && branch.syncStatus.relation === 'behind') {
-//   console.log(branch.name)
-// }
-//todo: automatically convert wip to merged if merged to develop?
-
-// todo: no need to sync wip branches where origin is merged
-// todo: add output - is shared branch deployed to deployTarget

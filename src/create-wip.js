@@ -26,9 +26,9 @@ async function createWIP() {
       isNumberOrEmpty(input) || 'Please enter a number (or enter to skip).',
   })
 
-  const desc = await prompt({
+  const title = await prompt({
     type: 'input',
-    name: 'desc',
+    name: 'title',
     message: 'Description',
     validate: input => input.length > 2 || 'Please enter a brief description.',
   })

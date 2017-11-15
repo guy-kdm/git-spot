@@ -1,23 +1,21 @@
 const g = require('./git-client')
 const relateBranches = require('./relate-branches')
+const { execSync } = require('child_process')
+const _ = require('ramda')
 
+// updating repo from remote once per script
+_.once(() => execSync('git fetch --all --prune'))()
+
+// repo status is branches and commits without a branch
 //  let currBranchName = await g.revparse(['--abbrev-ref', 'HEAD'])
-let _localBranches
-let _allBranches
-let _isCacheValid = false
-const init = async () => {
-  if (!_isCacheValid) {
-    await g.fetch(['--all', '--prune'])
-    _localBranches = Object.values((await g.branchLocal()).branches)
-    _allBranches = Object.values((await g.branch()).branches)
 
-    _isCacheValid = true
-  }
+//Object.values((await g.branchLocal()).branches)
+
+const _branches = async () => {
+  return _isCacheValid
+    ? _allranches
+    : Object.values((await g.branchLocal()).branches)
 }
-
-const getOriginBranch = name =>
-  _allBranches.find(b => b.name === 'remotes/origin/' + name)
-const getLocalBranch = name => _localBranches.find(b => b.name === name)
 
 const createBranch = async ({ from, prefix, title, failIfExists = true }) => {
   // if prefix specified using standard format
@@ -41,10 +39,16 @@ const createBranch = async ({ from, prefix, title, failIfExists = true }) => {
   }
 }
 
+// taken from
+const branchRegex = /^(\*?\s+)(\S+)\s+([a-z0-9]+)\s(.*)$/
+
+//todo: add headCommit prop for the most up to date commit (local / origin)
 const getBranches = async () => {
+  const branches = Object.values((await g.branch()).branches)
+
   // match each local branch with its origin tracking branch
   await Promise.all(
-    _localBranches.map(async branch => {
+    branches.map(async branch => {
       const originBranch = _allBranches.find(originBranch(branch))
 
       branch.originRelation = !originBranch
@@ -59,10 +63,10 @@ const getBranches = async () => {
 
   //todo: freeze result object for immutability
 
-  // add prefix and description from the branch naming convention
+  // add prefix and title from the branch naming convention
   // add branch type from branches config
   // todo: add timestamp if any
-  _localBranches.forEach(async branch => {
+  branches.forEach(async branch => {
     const [prefix, title] = branch.name.split('/')
 
     // if name not in prefix/title format (e.g. develop, master)
@@ -70,7 +74,7 @@ const getBranches = async () => {
     if (!title) {
       branch.title = prefix
 
-      const config = g.sharedBranches[branch.desc]
+      const config = g.sharedBranches[branch.title]
       if (config) {
         branch.type = config.type
         branch.sharedBranchConfig = config
@@ -80,11 +84,14 @@ const getBranches = async () => {
     }
   })
 
-  return _localBranches
+  return branches
 }
+const getOriginBranch = async name =>
+  (await getBranches()).find(b => b.name === 'remotes/origin/' + name)
+const getLocalBranch = async name =>
+  (await getBranches()).find(b => b.name === name)
 
 module.exports = async () => {
-  await init()
   return {
     createBranch,
     getBranches,
@@ -93,10 +100,7 @@ module.exports = async () => {
 
 // todo! ensure shared branches exist and tracked
 async function ensureSharedBranchesTracked() {
-  // todo: switch to call create branch and track,
   // make sure create branch don't create if exists
-  const sharedBrancheNames = Object.keys(g.sharedBranches)
-
   await forEachPromise({
     arr: sharedBrancheNames,
     fn: name =>
@@ -106,13 +110,4 @@ async function ensureSharedBranchesTracked() {
         failIfExists: false,
       }),
   })
-
-  // Ensuring all shared branches have a local tracking branch
-  // by checking them out
-  await forEachPromise({
-    arr: sharedBrancheNames,
-    fn: b => g.checkoutBranch(b),
-  })
-
-  await g.checkoutBranch(currBranchName)
 }
